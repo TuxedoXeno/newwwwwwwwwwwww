@@ -1,32 +1,55 @@
-# Prerequisites
-*.d
+#include <iostream>
+#include <vector>
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+// Define a struct to represent actors
+struct Actor {
+    int id;
+    std::string name;
+    int skin;
+    float x, y, z, a;
+    int world;
+    bool exists;
+};
 
-# Precompiled Headers
-*.gch
-*.pch
+// Function to load actors from a cache
+void LoadActors(std::vector<Actor>& actors, int connectionID, int maxActors) {
+    for (int i = 0; i < actors.size() && i < maxActors; ++i) {
+        actors[i].exists = true;
+        actors[i].id = cache_get_field_content_int(i, "id");
+        cache_get_field_content(i, "name", actors[i].name, connectionID, 24);
+        actors[i].skin = cache_get_field_content_int(i, "skin");
+        actors[i].x = cache_get_field_content_float(i, "x");
+        actors[i].y = cache_get_field_content_float(i, "y");
+        actors[i].z = cache_get_field_content_float(i, "z");
+        actors[i].a = cache_get_field_content_float(i, "a");
+        actors[i].world = cache_get_field_content_int(i, "world");
+        ReloadActor(i);
+    }
+}
 
-# Compiled Dynamic libraries
-*.so
-*.dylib
-*.dll
+int main() {
+    // Set the thread type
+    const int THREAD_LOAD_ACTORS = 1;
+    int threadType = THREAD_LOAD_ACTORS;
 
-# Fortran module files
-*.mod
-*.smod
+    // Set other variables
+    int connectionID = 42;
+    const int MAX_DYNAMIC_ACTORS = 100;
+    std::vector<Actor> actorInfo(MAX_DYNAMIC_ACTORS);
 
-# Compiled Static libraries
-*.lai
-*.la
-*.a
-*.lib
+    // Perform actions based on the thread type
+    switch (threadType) {
+        case THREAD_LOAD_ACTORS:
+            // Load actors from cache
+            LoadActors(actorInfo, connectionID, MAX_DYNAMIC_ACTORS);
+            break;
+        // Add other cases if needed
+        default:
+            std::cerr << "Unknown thread type." << std::endl;
+            break;
+    }
 
-# Executables
-*.exe
-*.out
-*.app
+    // Other code or actions
+
+    return 0;
+}
